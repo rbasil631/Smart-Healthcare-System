@@ -19,9 +19,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-import modal
-from modal.exception import AuthError, NotFoundError
-
 ROOT = Path(__file__).resolve().parents[1]
 APP_FILE = "modal_app.py"
 SECRET_NAME = "smartheart-api-key"
@@ -37,19 +34,30 @@ def modal_cli(*args: str) -> None:
         sys.exit(result.returncode)
 
 
+# Runs in a fresh Python process: modal reads ~/.modal.toml once, at import, so a token that
+# `modal setup` saves while this script is running is only visible to a new process.
+_CHECK_SECRET = f"""
+import sys, modal
+from modal.exception import AuthError, NotFoundError
+try:
+    modal.Secret.from_name({SECRET_NAME!r}).hydrate()
+except NotFoundError:
+    sys.exit(10)
+except AuthError:
+    sys.exit(20)
+"""
+
+
 def secret_exists() -> bool:
     """True/False for the API-key secret; logs in first if there is no Modal token."""
     for attempt in range(2):
-        try:
-            modal.Secret.from_name(SECRET_NAME).hydrate()
-            return True
-        except NotFoundError:
-            return False
-        except AuthError:
-            if attempt:
-                raise
-            print("No Modal credentials found -- starting `modal setup` (opens your browser).")
-            modal_cli("setup")
+        rc = subprocess.run([sys.executable, "-c", _CHECK_SECRET], cwd=ROOT).returncode
+        if rc in (0, 10):  # 0 = secret exists, 10 = not created yet
+            return rc == 0
+        if rc != 20 or attempt:  # 20 = no/invalid token; anything else is a real error (printed above)
+            sys.exit("Could not reach Modal with your credentials. Run `uv run --with modal modal token info` to check them.")
+        print("No Modal credentials found -- starting `modal setup` (opens your browser).")
+        modal_cli("setup")
     return False
 
 
