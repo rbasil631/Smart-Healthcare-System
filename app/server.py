@@ -103,6 +103,20 @@ class DoctorIn(BaseModel):
     registration_no: Optional[str] = Field(None, max_length=40)
 
 
+class ProfileIn(BaseModel):
+    """Edit an account's details. Which of the optional fields are required depends on
+    the role of the account being edited (see update_profile)."""
+    full_name: str = Field(..., min_length=2, max_length=80)
+    email: Optional[str] = Field(None, max_length=120)
+    phone: Optional[str] = Field(None, max_length=30)
+    sex: Optional[int] = Field(None, ge=0, le=1)          # patients
+    date_of_birth: Optional[str] = None                   # patients
+    specialty: Optional[str] = Field(None, max_length=80)  # doctors
+    hospital: Optional[str] = Field(None, max_length=120)  # doctors
+    registration_no: Optional[str] = Field(None, max_length=40)
+    bio: Optional[str] = Field(None, max_length=600)
+
+
 class ActiveIn(BaseModel):
     is_active: bool
 
@@ -240,6 +254,15 @@ def create_app(model_path: Path, db_path: Path, seed_demo: bool = False) -> Fast
             return
         raise HTTPException(403, "You do not have access to this patient")
 
+    def editable_user(u, uid: int):
+        """An administrator edits anybody; everyone else only their own details."""
+        target = db.one("SELECT * FROM users WHERE id = ?", (uid,))
+        if not target:
+            raise HTTPException(404, "User not found")
+        if u["role"] != "admin" and u["id"] != uid:
+            raise HTTPException(403, "You can only edit your own details")
+        return target
+
     def set_session(response: Response, uid: int):
         token = db.new_session(uid, SESSION_DAYS)
         response.set_cookie(COOKIE, token, httponly=True, samesite="lax", max_age=SESSION_DAYS * 86400, path="/")
@@ -338,6 +361,37 @@ def create_app(model_path: Path, db_path: Path, seed_demo: bool = False) -> Fast
             raise HTTPException(400, "Current password is wrong")
         db.run("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(body.new_password), u["id"]))
         return {"ok": True}
+
+    @app.patch("/api/users/{uid}")
+    def update_profile(uid: int, body: ProfileIn, u=Depends(current_user)):
+        """Edit the details of one account. Administrators may edit anybody; a doctor or a
+        patient may edit their own. Username, role and password are changed elsewhere, and
+        past assessments keep the age and sex that were recorded with them."""
+        target = editable_user(u, uid)
+        b = dump(body)
+        name = b["full_name"].strip()
+        if len(name) < 2:
+            raise HTTPException(422, "Full name is required")
+        email = (b.get("email") or "").strip() or None
+        phone = (b.get("phone") or "").strip() or None
+
+        if target["role"] == "patient":
+            if b.get("sex") is None or not b.get("date_of_birth"):
+                raise HTTPException(422, "Sex and date of birth are required for a patient")
+            valid_dob(b["date_of_birth"])
+            db.run("UPDATE patient_profiles SET sex = ?, date_of_birth = ? WHERE user_id = ?",
+                   (int(b["sex"]), b["date_of_birth"], uid))
+        elif target["role"] == "doctor":
+            specialty = (b.get("specialty") or "").strip()
+            hospital = (b.get("hospital") or "").strip()
+            if len(specialty) < 2 or len(hospital) < 2:
+                raise HTTPException(422, "Specialty and hospital are required for a doctor")
+            db.run("UPDATE doctor_profiles SET specialty = ?, hospital = ?, registration_no = ?, bio = ?"
+                   " WHERE user_id = ?", (specialty, hospital, (b.get("registration_no") or "").strip() or None,
+                                          (b.get("bio") or "").strip() or None, uid))
+
+        db.run("UPDATE users SET full_name = ?, email = ?, phone = ? WHERE id = ?", (name, email, phone, uid))
+        return user_json(db.one("SELECT * FROM users WHERE id = ?", (uid,)))
 
     @app.get("/api/public/doctors")
     def public_doctors():

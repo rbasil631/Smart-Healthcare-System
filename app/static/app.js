@@ -465,6 +465,65 @@
     });
   }
 
+  // Edit one account's details. `role` decides which block of fields is shown; the server
+  // allows this for an administrator (anybody) or for the signed-in person themselves.
+  function editDetails(person, role, onSaved) {
+    const d = $("#editDialog"), self = person.id === state.user.id;
+    $("#editTitle").textContent = self ? "My details" : `Edit ${person.full_name}`;
+    $("#editText").textContent = role === "patient"
+      ? "Age and sex are taken from here when an assessment is started. Assessments already saved keep the values recorded with them."
+      : role === "doctor" ? "Patients see the name, specialty, hospital and description when they choose a doctor."
+      : "Your name as it appears in the application.";
+    $$("[data-role-fields]", d).forEach(b => (b.hidden = b.dataset.roleFields !== role));
+    $("#editError").hidden = true;
+    $("#ed_name").value = person.full_name || "";
+    $("#ed_email").value = person.email || "";
+    $("#ed_phone").value = person.phone || "";
+    if (role === "patient") {
+      $("#ed_dob").value = person.date_of_birth || "";
+      $$('input[name="ed_sex"]').forEach(r => (r.checked = Number(r.value) === Number(person.sex)));
+    } else if (role === "doctor") {
+      $("#ed_spec").value = person.specialty || "";
+      $("#ed_hosp").value = person.hospital || "";
+      $("#ed_reg").value = person.registration_no || "";
+      $("#ed_bio").value = person.bio || "";
+    }
+
+    const onSubmit = async (e) => {
+      if (e.submitter?.value !== "ok") return;
+      e.preventDefault();
+      const err = (m) => { $("#editError").textContent = m; $("#editError").hidden = false; };
+      const body = { full_name: $("#ed_name").value.trim(), email: $("#ed_email").value.trim() || null, phone: $("#ed_phone").value.trim() || null };
+      if (body.full_name.length < 2) return err("Enter the full name.");
+      if (role === "patient") {
+        const sex = $('input[name="ed_sex"]:checked');
+        if (!$("#ed_dob").value) return err("Enter the date of birth.");
+        if (!sex) return err("Choose male or female.");
+        body.date_of_birth = $("#ed_dob").value;
+        body.sex = Number(sex.value);
+      } else if (role === "doctor") {
+        body.specialty = $("#ed_spec").value.trim();
+        body.hospital = $("#ed_hosp").value.trim();
+        body.registration_no = $("#ed_reg").value.trim() || null;
+        body.bio = $("#ed_bio").value.trim() || null;
+        if (!body.specialty || !body.hospital) return err("Specialty and hospital are required.");
+      }
+      const btn = $("#editSave"); btn.disabled = true;
+      try {
+        const saved = await post(`/api/users/${person.id}`, body, "PATCH");
+        if (self) { state.user = { ...state.user, ...saved }; $("#whoName").textContent = saved.full_name; }
+        d.close();
+        toast(self ? "Your details were saved" : `Details saved for ${saved.full_name}`);
+        onSaved?.(saved);
+      } catch (ex) { err(ex.message); } finally { btn.disabled = false; }
+    };
+    $("#editForm").addEventListener("submit", onSubmit);
+    d.addEventListener("close", () => $("#editForm").removeEventListener("submit", onSubmit), { once: true });
+    d.returnValue = ""; d.showModal(); $("#ed_name").focus();
+  }
+
+  $("#profileBtn").addEventListener("click", () => editDetails(state.user, state.user.role, () => route()));
+
   $("#pwBtn").addEventListener("click", () => {
     $("#pwForm").reset(); $("#pwError").hidden = true; $("#pwDialog").showModal(); $("#pw_cur").focus();
   });
@@ -689,6 +748,7 @@
   async function viewPatient(pid) {
     const [p, list] = await Promise.all([api(`/api/patients/${pid}`), api(`/api/patients/${pid}/assessments`)]);
     const role = state.user.role, self = role === "patient", admin = role === "admin";
+    const canEdit = admin || self;   // a doctor reads a patient's profile but does not change it
     const newHref = self ? "#assess" : `#assess/${pid}`;
     const last = list[list.length - 1];
     const doctorsHtml = p.doctors.length
@@ -713,7 +773,7 @@
             : `<div class="empty-state" style="padding:28px 8px"><h2>No assessments yet</h2><p>${self ? "Run your first assessment. Every later one is added here with its date, so you can see how your risk changes." : "Run the first assessment for this patient."}</p>${p.is_active ? `<a class="btn small solid" href="${newHref}">Start the first assessment</a>` : ""}</div>`}
         </div>
         <div class="card">
-          <h3>Profile</h3>
+          <div class="card-head"><h3>Profile</h3>${canEdit ? `<button class="btn small" type="button" id="editProfile">Edit details</button>` : ""}</div>
           <dl class="kv tight">
             <dt>Username</dt><dd>${esc(p.username)}</dd>
             <dt>Date of birth</dt><dd>${esc(fmtDate(p.date_of_birth))}</dd>
@@ -733,6 +793,7 @@
 
     if (list.length) drawTrend($("#trend"), list, (id) => (location.hash = `assessment/${id}`));
     wireAssessmentTable(() => viewPatient(pid));
+    if (canEdit) $("#editProfile").addEventListener("click", () => editDetails(p, "patient", () => viewPatient(pid)));
     if (admin) {
       const docs = await api("/api/doctors");
       const have = new Set(p.doctors.map(d => d.id));
@@ -931,7 +992,7 @@
           <td>${esc(d.specialty)}</td><td class="hide-sm">${esc(d.hospital)}</td>
           <td class="num">${d.n_patients}</td>
           <td class="hide-sm status ${d.is_active ? "" : "off"}">${d.is_active ? "Active" : "Deactivated"}</td>
-          <td><div class="row-actions"><button class="btn small" type="button" data-reset="${d.id}">Reset password</button><button class="btn small ${d.is_active ? "danger" : ""}" type="button" data-toggle="${d.id}">${d.is_active ? "Deactivate" : "Reactivate"}</button></div></td>
+          <td><div class="row-actions"><button class="btn small" type="button" data-edit="${d.id}">Edit details</button><button class="btn small" type="button" data-reset="${d.id}">Reset password</button><button class="btn small ${d.is_active ? "danger" : ""}" type="button" data-toggle="${d.id}">${d.is_active ? "Deactivate" : "Reactivate"}</button></div></td>
         </tr>`).join("")}</tbody></table></div>`;
     const f = $("#docForm");
     $("#addDocBtn").addEventListener("click", () => { f.hidden = false; $("#nd_name").focus(); });
@@ -947,6 +1008,7 @@
       if (body.password.length < 8) return err("The initial password needs at least 8 characters.");
       try { await post("/api/admin/doctors", body); toast(`${body.full_name} can now sign in as ${body.username}`); viewDoctorsAdmin(); } catch (ex) { err(ex.message); }
     });
+    $$("[data-edit]").forEach(b => b.addEventListener("click", () => { const d = docs.find(x => x.id === Number(b.dataset.edit)); editDetails(d, "doctor", viewDoctorsAdmin); }));
     $$("[data-reset]").forEach(b => b.addEventListener("click", () => { const d = docs.find(x => x.id === Number(b.dataset.reset)); resetPassword(d.id, d.full_name); }));
     $$("[data-toggle]").forEach(b => b.addEventListener("click", () => { const d = docs.find(x => x.id === Number(b.dataset.toggle)); toggleActive(d.id, d.full_name, d.is_active, viewDoctorsAdmin); }));
   }

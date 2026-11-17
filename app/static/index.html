@@ -83,6 +83,7 @@
   <nav class="tabs" id="nav" aria-label="Sections"></nav>
   <div class="who">
     <span class="who-name" id="whoName"></span><span class="role-pill" id="whoRole"></span>
+    <button class="link-btn" type="button" id="profileBtn">My details</button>
     <button class="link-btn" type="button" id="pwBtn">Password</button>
     <button class="link-btn" type="button" id="logoutBtn">Sign out</button>
   </div>
@@ -292,6 +293,43 @@
     <div class="field"><label for="pw_new">New password</label><input type="password" id="pw_new" autocomplete="new-password"></div>
     <div class="field"><label for="pw_new2">Repeat new password</label><input type="password" id="pw_new2" autocomplete="new-password"></div>
     <div class="dlg-actions"><button class="btn small" value="cancel" formnovalidate>Cancel</button><button class="btn small solid" id="pwSave" value="ok">Change password</button></div>
+  </form>
+</dialog>
+
+<dialog id="editDialog" class="wide">
+  <form method="dialog" id="editForm" novalidate>
+    <h2 id="editTitle">Edit details</h2>
+    <p id="editText"></p>
+    <p class="form-error" id="editError" hidden></p>
+    <div class="field"><label for="ed_name">Full name</label><input type="text" id="ed_name" maxlength="80" autocomplete="name"></div>
+
+    <div data-role-fields="patient" hidden>
+      <div class="row">
+        <div class="field"><label for="ed_dob">Date of birth</label><input type="date" id="ed_dob"></div>
+        <div class="field">
+          <span class="label" id="ed_sex_l">Sex</span>
+          <div class="seg" role="radiogroup" aria-labelledby="ed_sex_l">
+            <label><input type="radio" name="ed_sex" value="1"><span>Male</span></label>
+            <label><input type="radio" name="ed_sex" value="0"><span>Female</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div data-role-fields="doctor" hidden>
+      <div class="row">
+        <div class="field"><label for="ed_spec">Specialty</label><input type="text" id="ed_spec" maxlength="80"></div>
+        <div class="field"><label for="ed_hosp">Hospital</label><input type="text" id="ed_hosp" maxlength="120"></div>
+      </div>
+      <div class="field"><label for="ed_reg">Registration number <small>(optional)</small></label><input type="text" id="ed_reg" maxlength="40"></div>
+      <div class="field"><label for="ed_bio">About <small>(optional, shown to patients)</small></label><textarea id="ed_bio" rows="3" maxlength="600"></textarea></div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label for="ed_email">Email <small>(optional)</small></label><input type="email" id="ed_email" maxlength="120" autocomplete="email"></div>
+      <div class="field"><label for="ed_phone">Phone <small>(optional)</small></label><input type="tel" id="ed_phone" maxlength="30" autocomplete="tel"></div>
+    </div>
+    <div class="dlg-actions"><button class="btn small" value="cancel" formnovalidate>Cancel</button><button class="btn small solid" id="editSave" value="ok">Save changes</button></div>
   </form>
 </dialog>
 
