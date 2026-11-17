@@ -1,4 +1,4 @@
-"""Deploy the SmartHeart models on Modal as an HTTPS prediction API.
+"""Deploy SmartHeart on Modal: the browser app at / and a key-protected JSON API.
 
     uv run scripts/deploy_modal.py  # easiest: logs in, creates the API-key secret, deploys
 
@@ -8,13 +8,22 @@ Or with the modal CLI directly:
     modal serve modal_app.py        # temporary dev URL, hot-reloads on save
     modal deploy modal_app.py       # persistent URL
 
-Endpoints (every request needs the header  x-api-key: <SMARTHEART_API_KEY>):
-    GET  /                                       redirects to /docs (no key needed)
+The browser app (app/server.py -- patient / doctor / admin logins, assessment history,
+SHAP explanations) is served at / with its own routes: /static/*, /api/*, /api/docs.
+It has its own logins, so it needs no API key. Its SQLite database lives on the Modal
+Volume "smartheart-db", so accounts and assessments survive restarts and redeploys.
+The administrator password is printed once, by the container that creates the database:
+
+    uv run --with modal modal app logs smartheart            # read it there, or
+    uv run --with modal modal run modal_app.py::reset_admin  # set a new one
+
+The machine-to-machine JSON API keeps its own routes, each needing the header
+x-api-key: <SMARTHEART_API_KEY>:
     GET  /health
     GET  /info?model=ensemble|student
     POST /predict?model=ensemble|student         body: one patient (11 features)
     POST /predict/batch?model=ensemble|student   body: {"patients": [ ... ]}
-Interactive docs: <url>/docs
+Interactive docs for it: <url>/docs
 """
 import os
 from pathlib import Path
@@ -23,6 +32,8 @@ import modal
 
 ROOT = Path(__file__).parent
 REMOTE_ROOT = "/root/smartheart"  # config.py resolves ROOT as parents[2] of src/smartheart_ml/config.py
+DB_DIR = "/data"  # a Volume, not the image: containers are thrown away, the database must not be
+DB_PATH = f"{DB_DIR}/smartheart.db"
 
 # Same versions as requirements-app.txt: the ensemble .pth is a scikit-learn pickle, so
 # scikit-learn / catboost / xgboost must match the training environment.
@@ -37,15 +48,21 @@ image = (
         "scikit-learn==1.5.2",
         "xgboost>=2.0,<3.0",
         "catboost==1.2.10",
+        "shap>=0.45",  # per-patient explanations in the browser app
         "fastapi[standard]>=0.115",
     )
     .env({"PYTHONPATH": f"{REMOTE_ROOT}/src", "PYTHONWARNINGS": "default"})
     # add_local_* must come last: these files are mounted at container start, not baked into the image
     .add_local_dir(ROOT / "src", f"{REMOTE_ROOT}/src", ignore=["**/__pycache__", "**/*.pyc"])
+    .add_local_dir(ROOT / "app", f"{REMOTE_ROOT}/app", ignore=["**/__pycache__", "**/*.pyc"])
     .add_local_dir(ROOT / "models", f"{REMOTE_ROOT}/models")
+    .add_local_file(ROOT / "data" / "merge.csv", f"{REMOTE_ROOT}/data/merge.csv")  # SHAP background set
 )
 
 app = modal.App("smartheart", image=image)
+
+# Accounts, assessments and sessions. Created on the first deploy, kept across redeploys.
+db_volume = modal.Volume.from_name("smartheart-db", create_if_missing=True)
 
 MODEL_FILES = {
     "ensemble": f"{REMOTE_ROOT}/models/smartheart_ensemble.pth",
@@ -54,18 +71,35 @@ MODEL_FILES = {
 
 
 @app.cls(
-    cpu=1.0,
-    memory=2048,
+    cpu=2.0,
+    memory=4096,  # both model bundles plus the SHAP background set
     scaledown_window=300,  # keep a warm container for 5 min after the last request
+    max_containers=1,  # one SQLite writer: the database is a single file shared over the Volume
+    volumes={DB_DIR: db_volume},
     secrets=[modal.Secret.from_name("smartheart-api-key")],
 )
+@modal.concurrent(max_inputs=8)  # a page load fires several /api calls; don't serialise them
 class SmartHeart:
     @modal.enter()
     def load(self):
         """Runs once per container: load both bundles so requests don't pay the load cost."""
+        import sys
+
         from smartheart_ml.inference import SmartHeartPredictor
 
         self.predictors = {name: SmartHeartPredictor(path) for name, path in MODEL_FILES.items()}
+
+        # The browser app. server.py puts src/ and app/ on sys.path itself, but only once
+        # it is imported, so app/ has to be reachable first.
+        sys.path.insert(0, f"{REMOTE_ROOT}/app")
+        from server import create_app
+
+        self.ui = create_app(Path(MODEL_FILES["ensemble"]), Path(DB_PATH))
+        db_volume.commit()  # the first container seeds the database -- keep that work
+
+    @modal.exit()
+    def save(self):
+        db_volume.commit()
 
     def _run(self, records, model):
         import warnings
@@ -92,8 +126,8 @@ class SmartHeart:
         from typing import Literal
 
         from fastapi import Depends, FastAPI, Header, HTTPException, Query
-        from fastapi.responses import RedirectResponse
         from pydantic import BaseModel, Field
+        from starlette.concurrency import run_in_threadpool
 
         expected_key = os.environ["SMARTHEART_API_KEY"]
 
@@ -125,12 +159,14 @@ class SmartHeart:
         ModelName = Literal["ensemble", "student"]
         api = FastAPI(title="SmartHeart API", version="2.1.0", dependencies=[Depends(check_key)])
 
-        def root(request):
-            return RedirectResponse("/docs")
-
-        # Added the way FastAPI adds /docs itself -- a plain route, so the app-level key
-        # check (which only covers API routes) does not apply and the bare URL isn't a 404.
-        api.add_route("/", root, methods=["GET"], include_in_schema=False)
+        @api.middleware("http")
+        async def persist(request, call_next):
+            """A container can be reclaimed at any time, so write-through to the Volume.
+            Only the browser app's routes touch the database; /predict does not."""
+            response = await call_next(request)
+            if request.method != "GET" and request.url.path.startswith("/api/") and response.status_code < 400:
+                await run_in_threadpool(db_volume.commit)
+            return response
 
         def run(records, model):
             try:
@@ -155,7 +191,26 @@ class SmartHeart:
         def predict_batch(batch: Batch, model: ModelName = Query("ensemble")):
             return run([p.model_dump() for p in batch.patients], model)
 
+        # The browser app takes every path the JSON API above does not claim: /, /static/*,
+        # /api/*. Mounted last, so those routes still win, and as a mount rather than a
+        # route so the app-level x-api-key check does not apply -- it has its own logins.
+        api.mount("/", self.ui)
         return api
+
+
+@app.function(volumes={DB_DIR: db_volume})
+def reset_admin():
+    """`modal run modal_app.py::reset_admin` -- new admin password, printed in your terminal.
+
+    Use it when the first-run password has scrolled out of the app logs."""
+    import sys
+
+    sys.path.insert(0, f"{REMOTE_ROOT}/app")
+    from db import Database
+
+    password = Database(DB_PATH).reset_admin()
+    db_volume.commit()
+    print(f"\n  username: admin    password: {password}\n", flush=True)
 
 
 @app.local_entrypoint()

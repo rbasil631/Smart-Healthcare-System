@@ -18,6 +18,7 @@ import io
 import json
 import re
 import sys
+import threading
 import warnings
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -40,6 +41,7 @@ from smartheart_ml.explain import ShapExplainer
 from smartheart_ml.inference import SmartHeartPredictor
 
 STATIC = APP_DIR / "static"
+_assess_lock = threading.Lock()
 COOKIE = "smartheart_session"
 SESSION_DAYS = 7
 USERNAME_RE = re.compile(r"^[A-Za-z0-9._-]{3,40}$")
@@ -154,19 +156,23 @@ def create_app(model_path: Path, db_path: Path, seed_demo: bool = False) -> Fast
         for k in ["cholesterol", "resting_bp_s"]:
             if rec.get(k) is None:
                 rec[k] = 0  # model treats 0 as "not measured"
-        with warnings.catch_warnings(record=True) as caught:
-            warnings.simplefilter("always")
-            try:
-                X = predictor.prepare(rec)
-            except ValueError as e:
-                raise HTTPException(422, str(e))
-            prob = float(predictor.proba_prepared(X)[0])
+        # One assessment at a time: SHAP's masker reuses its buffers between calls and the
+        # warning filters below are process-global, so two threads here would mix results.
+        with _assess_lock:
+            with warnings.catch_warnings(record=True) as caught:
+                warnings.simplefilter("always")
+                try:
+                    X = predictor.prepare(rec)
+                except ValueError as e:
+                    raise HTTPException(422, str(e))
+                prob = float(predictor.proba_prepared(X)[0])
+            explanation = explainer.explain(X)
         sets = conformal_sets([prob], q)[0]
         return {
             "probability": prob, "prediction": LABELS[int(prob >= predictor.threshold)],
             "threshold": predictor.threshold, "conformal_set": [LABELS[c] for c in (0, 1) if sets[c]],
             "decision": decision(sets), "band": band, "warnings": [str(w.message) for w in caught],
-            "explanation": explainer.explain(X),
+            "explanation": explanation,
         }
 
     def save_assessment(patient_id, created_by, inputs, result, notes, created_at=None):
@@ -313,7 +319,9 @@ def create_app(model_path: Path, db_path: Path, seed_demo: bool = False) -> Fast
         print("Demo patients created: demo.imran and demo.sana (password Patient@123)", flush=True)
 
     # ------------------------------------------------------------------ app + pages
-    app = FastAPI(title="SmartHeart", docs_url="/api/docs")
+    # Schema under /api too: deployments can mount this app next to another FastAPI app
+    # (modal_app.py does), and whichever is outermost would otherwise own /openapi.json.
+    app = FastAPI(title="SmartHeart", docs_url="/api/docs", openapi_url="/api/openapi.json")
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
     @app.get("/")

@@ -93,6 +93,8 @@ def main() -> None:
     for f in ("models/smartheart_ensemble.pth", "models/smartheart_student.pth"):
         if not (ROOT / f).exists():
             sys.exit(f"Missing {f} -- the API serves both model bundles.")
+    if not (ROOT / "data" / "merge.csv").exists():
+        sys.exit("Missing data/merge.csv -- the web app's SHAP explanations need it as a background set.")
 
     if a.rotate_key or not secret_exists():
         create_secret(overwrite=a.rotate_key)
