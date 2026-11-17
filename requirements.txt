@@ -1,0 +1,16 @@
+numpy>=1.26,<2.2
+pandas>=2.1
+scipy>=1.11
+scikit-learn==1.5.2
+xgboost>=2.0,<3.0
+catboost>=1.2.7
+torch>=2.0
+matplotlib>=3.8
+# web interface (app/)
+fastapi>=0.110
+uvicorn>=0.27
+shap>=0.45
+# legacy/ paper-reproduction scripts additionally need:
+seaborn>=0.13
+statsmodels>=0.14
+lime==0.2.0.1
