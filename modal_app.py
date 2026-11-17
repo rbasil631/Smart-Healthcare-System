@@ -9,6 +9,7 @@ Or with the modal CLI directly:
     modal deploy modal_app.py       # persistent URL
 
 Endpoints (every request needs the header  x-api-key: <SMARTHEART_API_KEY>):
+    GET  /                                       redirects to /docs (no key needed)
     GET  /health
     GET  /info?model=ensemble|student
     POST /predict?model=ensemble|student         body: one patient (11 features)
@@ -91,6 +92,7 @@ class SmartHeart:
         from typing import Literal
 
         from fastapi import Depends, FastAPI, Header, HTTPException, Query
+        from fastapi.responses import RedirectResponse
         from pydantic import BaseModel, Field
 
         expected_key = os.environ["SMARTHEART_API_KEY"]
@@ -122,6 +124,13 @@ class SmartHeart:
 
         ModelName = Literal["ensemble", "student"]
         api = FastAPI(title="SmartHeart API", version="2.1.0", dependencies=[Depends(check_key)])
+
+        def root(request):
+            return RedirectResponse("/docs")
+
+        # Added the way FastAPI adds /docs itself -- a plain route, so the app-level key
+        # check (which only covers API routes) does not apply and the bare URL isn't a 404.
+        api.add_route("/", root, methods=["GET"], include_in_schema=False)
 
         def run(records, model):
             try:

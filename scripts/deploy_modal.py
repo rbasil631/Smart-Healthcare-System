@@ -10,10 +10,14 @@
     uv run scripts/deploy_modal.py --rotate-key
 
 uv installs modal in a throwaway environment, so nothing needs to be installed first.
+A container that is still warm keeps serving the previous version until it scales down
+(scaledown_window, 5 min idle). To put new code live immediately, terminate it first:
+    uv run --with modal modal app stop -y smartheart
 On the first run it logs you in to Modal (opens the browser) and creates the API-key
 secret, printing the key once -- save it, every request needs it as the x-api-key header.
 """
 import argparse
+import os
 import secrets
 import subprocess
 import sys
@@ -24,12 +28,16 @@ APP_FILE = "modal_app.py"
 SECRET_NAME = "smartheart-api-key"
 SECRET_KEY = "SMARTHEART_API_KEY"
 
+# The modal CLI prints box-drawing characters and check marks; without this it dies with a
+# UnicodeEncodeError on a Windows console, whose default stdout encoding is cp1252.
+CHILD_ENV = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+
 
 def modal_cli(*args: str) -> None:
     """Run the modal CLI from this uv environment, inside the repo root."""
     cmd = [sys.executable, "-m", "modal", *args]
     print("$ modal " + " ".join(args), flush=True)
-    result = subprocess.run(cmd, cwd=ROOT)
+    result = subprocess.run(cmd, cwd=ROOT, env=CHILD_ENV)
     if result.returncode != 0:
         sys.exit(result.returncode)
 
@@ -51,7 +59,7 @@ except AuthError:
 def secret_exists() -> bool:
     """True/False for the API-key secret; logs in first if there is no Modal token."""
     for attempt in range(2):
-        rc = subprocess.run([sys.executable, "-c", _CHECK_SECRET], cwd=ROOT).returncode
+        rc = subprocess.run([sys.executable, "-c", _CHECK_SECRET], cwd=ROOT, env=CHILD_ENV).returncode
         if rc in (0, 10):  # 0 = secret exists, 10 = not created yet
             return rc == 0
         if rc != 20 or attempt:  # 20 = no/invalid token; anything else is a real error (printed above)
