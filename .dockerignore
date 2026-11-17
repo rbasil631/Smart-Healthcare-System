@@ -1,0 +1,19 @@
+.git
+.gitignore
+.vscode
+**/__pycache__
+**/*.pyc
+venv
+.venv
+docs
+legacy
+examples
+outputs
+scripts
+# live local databases -- the container creates its own in the /data volume
+data/*.db
+data/*.sqlite
+Dockerfile
+.dockerignore
+docker-compose.yml
+README.md

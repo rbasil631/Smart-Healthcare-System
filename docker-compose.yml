@@ -1,0 +1,13 @@
+services:
+  smartheart:
+    build: .
+    image: smartheart
+    container_name: smartheart
+    ports:
+      - "8000:8000"
+    volumes:
+      - smartheart-data:/data      # SQLite database (accounts, patients, assessments)
+    restart: unless-stopped
+
+volumes:
+  smartheart-data:
