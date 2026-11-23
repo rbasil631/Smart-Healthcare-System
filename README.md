@@ -22,7 +22,11 @@ smartheart/
 │   └── inference.py                # SmartHeartPredictor (Python API)
 ├── app/
 │   ├── server.py                   # FastAPI server: prediction, SHAP, history (SQLite)
-│   └── static/index.html           # the SmartHeart interface
+│   └── static/                     # the built interface (committed; produced from web/)
+├── web/                            # interface source: React + Vite + Tailwind + shadcn/ui
+│   ├── src/pages/                  # one file per view (assess, history, patients, admin, model)
+│   ├── src/components/             # risk strip, SHAP waterfall, trend chart, shared UI
+│   └── src/components/ui/          # shadcn/ui components
 ├── scripts/
 │   ├── train.py                    # select -> evaluate -> distill -> export .pth
 │   ├── ablation.py                 # cholesterol-shortcut sensitivity analysis
@@ -129,6 +133,28 @@ remove these before showing the system to anyone outside the project. Lost the a
 Security: passwords are stored as salted PBKDF2-SHA256 hashes; sessions use random tokens in HttpOnly
 cookies; every permission is checked on the server, not only hidden in the interface. This is a local
 prototype: run it behind HTTPS before putting it on a network.
+
+### Changing the interface
+
+The interface is a React single-page app built with Vite, Tailwind CSS v4 and
+[shadcn/ui](https://ui.shadcn.com) (Base UI primitives, `nova` style). The source lives in `web/`; the
+build output is committed to `app/static/`, so Docker and Modal deployments stay Python-only and need no
+Node toolchain.
+
+```powershell
+cd web
+npm install
+npm run dev     # http://localhost:5173, proxies /api to a local server on :8000
+npm run build   # writes app/static/ -- commit the result together with the source change
+npm run lint    # eslint
+```
+
+Run `python app/server.py` in a second terminal while using `npm run dev`. Components are added with
+`npx shadcn@latest add <component>`; the healthcare palette (clinical navy, heart red for risk, amber for
+the referral band) is defined once as CSS variables in `web/src/index.css` and used through semantic
+classes such as `bg-risk-tint` or `text-safe`. Optional `amu-logo.png` and `hero.jpg` drop-ins for the
+sign-in page go in `web/public/img/` (see the README there). The previous hand-written interface is kept
+unchanged in `legacy/web-v1/` for reference.
 
 ## Key findings so far (from `legacy/smartheart_v2.py`)
 

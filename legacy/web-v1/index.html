@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Healthcare System for Heart Patients</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B5FA5'/%3E%3Cpath d='M16 26s-9-5.3-11.3-10.7C3.1 11.4 5.3 6.5 9.8 6.5c2.7 0 4.6 1.6 6.2 3.7 1.6-2.1 3.5-3.7 6.2-3.7 4.5 0 6.7 4.9 5.1 8.8C25 20.7 16 26 16 26z' fill='%23fff'/%3E%3Cpath d='M6.5 15.6h4.6l1.8-3.7 2.7 7.5 2-5 1.4 1.2h6' fill='none' stroke='%23D62839' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/theme.css">
+</head>
+<body>
+
+<!-- ============================================================ SIGN IN / REGISTER -->
+<div class="auth" id="authScreen" hidden>
+  <section class="hero" aria-label="About the Smart Healthcare System">
+    <div class="hero-top">
+      <span class="uni">
+        <span class="uni-logo"><img src="/static/img/amu-logo.png" alt="Aligarh Muslim University logo" onerror="this.parentElement.classList.add('no-logo');this.remove()"><span class="uni-fallback" aria-hidden="true">AMU</span></span>
+        <span class="uni-text"><b>Aligarh Muslim University</b><small>B.Tech Computer Engineering (AI), final-year project</small></span>
+      </span>
+    </div>
+    <div class="hero-body">
+      <h1 class="hero-title">Smart Healthcare System for Heart Patients</h1>
+      <p class="hero-lede">Assess heart disease risk from routine clinical values, see what drives each result, and keep a dated record that your doctors can follow.</p>
+      <ul class="hero-points">
+        <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg></span><span><b>Risk assessment</b> from 11 values a clinic already records, such as blood pressure, cholesterol and the ECG.</span></li>
+        <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span><b>Explained results.</b> Every prediction shows which values raised or lowered the risk.</span></li>
+        <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.7.8 2.7 2.5 3 5.2"/></svg></span><span><b>Shared history.</b> Each visit is saved with its date, and the doctors you choose can see it.</span></li>
+      </ul>
+    </div>
+    <figure class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 560 470" role="presentation">
+        <defs>
+          <linearGradient id="hg" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#FF7A88"/><stop offset=".55" stop-color="#E23B4E"/><stop offset="1" stop-color="#B01E33"/></linearGradient>
+          <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff" stop-opacity=".16"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+          <linearGradient id="tube" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F8FC"/><stop offset="1" stop-color="#BFD3E6"/></linearGradient>
+        </defs>
+        <circle cx="330" cy="280" r="190" fill="url(#glow)"/>
+        <circle cx="330" cy="280" r="150" fill="none" stroke="#ffffff" stroke-opacity=".10" stroke-width="1.5"/>
+        <circle cx="330" cy="280" r="205" fill="none" stroke="#ffffff" stroke-opacity=".06" stroke-width="1.5" stroke-dasharray="4 8"/>
+        <!-- heart -->
+        <g class="heart">
+          <path d="M330 420C262 378 210 334 200 278c-9-50 22-96 72-96 27 0 45 14 58 34 13-20 31-34 58-34 50 0 81 46 72 96-10 56-62 100-130 142z" fill="url(#hg)"/>
+          <path d="M246 214c-22 8-34 30-30 56" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="9" stroke-linecap="round"/>
+          <path d="M214 296h46l14-30 20 62 16-44 10 12h76" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <!-- stethoscope -->
+        <g fill="none" stroke-linecap="round">
+          <path d="M474 64c-4 40 6 70 30 92M520 58c4 40-4 70-16 98" stroke="url(#tube)" stroke-width="7"/>
+          <circle cx="474" cy="60" r="7" fill="#F4F8FC"/><circle cx="520" cy="54" r="7" fill="#F4F8FC"/>
+          <path d="M504 156c10 60-4 126-52 178-38 41-92 66-146 70-52 4-96-10-118-40" stroke="url(#tube)" stroke-width="10"/>
+          <circle cx="182" cy="356" r="30" fill="#F4F8FC" stroke="#BFD3E6" stroke-width="6"/>
+          <circle cx="182" cy="356" r="13" fill="#D7E5F1"/>
+        </g>
+        <!-- bedside monitor -->
+        <g transform="translate(18 18)">
+          <rect width="300" height="168" rx="18" fill="#061F36" stroke="#ffffff" stroke-opacity=".16"/>
+          <rect x="14" y="40" width="272" height="112" rx="8" fill="#04172A"/>
+          <g stroke="#2B5A7F" stroke-opacity=".35" stroke-width="1">
+            <path d="M14 68h272M14 96h272M14 124h272M68 40v112M122 40v112M176 40v112M230 40v112"/>
+          </g>
+          <text x="16" y="27" font-family="Public Sans, system-ui, sans-serif" font-size="13" font-weight="700" fill="#9FD0FF">ECG  II</text>
+          <text class="bpm" x="284" y="28" text-anchor="end" font-family="Public Sans, system-ui, sans-serif" font-size="18" font-weight="800" fill="#5BE3B0">72 bpm</text>
+          <path class="ecg-base" d="M14 104h30l8-10 8 10h10l6 8 9-58 9 76 6-26h18l12-12 12 12h22l8-10 8 10h10l6 8 9-58 9 76 6-26h18l12-12 12 12h17" fill="none" stroke-width="2.6" stroke-linejoin="round"/>
+          <path class="ecg-pulse" d="M14 104h30l8-10 8 10h10l6 8 9-58 9 76 6-26h18l12-12 12 12h22l8-10 8 10h10l6 8 9-58 9 76 6-26h18l12-12 12 12h17" fill="none" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" pathLength="800"/>
+        </g>
+        <!-- small crosses -->
+        <g fill="#ffffff" fill-opacity=".35">
+          <path d="M520 300h6v8h8v6h-8v8h-6v-8h-8v-6h8z"/>
+          <path d="M108 250h4v6h6v4h-6v6h-4v-6h-6v-4h6z"/>
+          <path d="M470 420h5v7h7v5h-7v7h-5v-7h-7v-5h7z"/>
+        </g>
+      </svg>
+    </figure>
+    <p class="hero-credit">Created by <b>Syed Basil Rizvi</b></p>
+  </section>
+
+  <div class="auth-main">
+    <div class="auth-card">
+      <div class="auth-brand"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 27.5s-10-5.9-12.6-11.9C1.6 11.3 4 5.8 9 5.8c3 0 5.2 1.8 7 4.2 1.8-2.4 4-4.2 7-4.2 5 0 7.4 5.5 5.6 9.8C26 21.6 16 27.5 16 27.5z" fill="#fff"/><path d="M5.5 16.2h5.2l2-4.2 3 8.4 2.2-5.6 1.6 1.4h6.7" fill="none" stroke="#0B5FA5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="brand-text"><b>Smart Healthcare System</b><small>for Heart Patients</small></span></div>
+      <form id="loginForm" novalidate>
+        <h1>Sign in</h1>
+        <p class="lede">Patients, doctors and administrators sign in with their username.</p>
+        <p class="form-error" id="loginError" hidden></p>
+        <div class="field"><label for="li_user">Username</label><input type="text" id="li_user" autocomplete="username" required></div>
+        <div class="field"><label for="li_pass">Password</label><input type="password" id="li_pass" autocomplete="current-password" required></div>
+        <button class="btn primary" type="submit" id="loginBtn">Sign in</button>
+        <p class="auth-switch">New patient? <button type="button" data-auth="register">Create an account</button></p>
+      </form>
+
+      <form id="registerForm" novalidate hidden>
+        <h1>Create a patient account</h1>
+        <p class="lede">You will use this username and password to see your results over time.</p>
+        <p class="form-error" id="regError" hidden></p>
+        <div class="field"><label for="rg_name">Full name</label><input type="text" id="rg_name" autocomplete="name" maxlength="80" required></div>
+        <div class="row">
+          <div class="field"><label for="rg_user">Username</label><input type="text" id="rg_user" autocomplete="username" maxlength="40" required><small>Letters, digits, dots, dashes</small></div>
+          <div class="field"><label for="rg_dob">Date of birth</label><input type="date" id="rg_dob" required></div>
+        </div>
+        <div class="field">
+          <span class="label" id="rg_sex_l">Sex</span>
+          <div class="seg" role="radiogroup" aria-labelledby="rg_sex_l">
+            <label><input type="radio" name="rg_sex" value="1"><span>Male</span></label>
+            <label><input type="radio" name="rg_sex" value="0"><span>Female</span></label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="rg_pass">Password</label><input type="password" id="rg_pass" autocomplete="new-password" required><small>At least 8 characters</small></div>
+          <div class="field"><label for="rg_pass2">Repeat password</label><input type="password" id="rg_pass2" autocomplete="new-password" required></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="rg_email">Email <small>(optional)</small></label><input type="email" id="rg_email" autocomplete="email" maxlength="120"></div>
+          <div class="field"><label for="rg_phone">Phone <small>(optional)</small></label><input type="tel" id="rg_phone" autocomplete="tel" maxlength="30"></div>
+        </div>
+        <div class="field">
+          <span class="label">Your doctors <small>(optional, you can change this later)</small></span>
+          <div class="doc-pick" id="rg_doctors"></div>
+          <small>Doctors you choose can see your assessments.</small>
+        </div>
+        <button class="btn primary" type="submit" id="registerBtn">Create account</button>
+        <p class="auth-switch">Already registered? <button type="button" data-auth="login">Sign in</button></p>
+      </form>
+      <p class="auth-foot mobile-only">Created by <b>Syed Basil Rizvi</b>, Aligarh Muslim University</p>
+    </div>
+    <p class="auth-note">Research prototype for academic use. Results support, and do not replace, a doctor's judgement.</p>
+  </div>
+</div>
+
+<!-- ============================================================ APP -->
+<div id="appShell" hidden>
+<header class="bar">
+  <a class="brand" href="#" id="homeLink" aria-label="Smart Healthcare System home">
+    <span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 27.5s-10-5.9-12.6-11.9C1.6 11.3 4 5.8 9 5.8c3 0 5.2 1.8 7 4.2 1.8-2.4 4-4.2 7-4.2 5 0 7.4 5.5 5.6 9.8C26 21.6 16 27.5 16 27.5z" fill="#fff"/><path d="M5.5 16.2h5.2l2-4.2 3 8.4 2.2-5.6 1.6 1.4h6.7" fill="none" stroke="#0B5FA5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <span class="brand-text"><b>Smart Healthcare System</b><small>for Heart Patients</small></span>
+  </a>
+  <nav class="tabs" id="nav" aria-label="Sections"></nav>
+  <div class="who">
+    <span class="who-name" id="whoName"></span><span class="role-pill" id="whoRole"></span>
+    <button class="link-btn" type="button" id="profileBtn">My details</button>
+    <button class="link-btn" type="button" id="pwBtn">Password</button>
+    <button class="link-btn" type="button" id="logoutBtn">Sign out</button>
+  </div>
+</header>
+
+<main>
+<section id="view-assess" class="assess">
+  <form class="intake" id="form" novalidate>
+    <div class="ctx">
+      <a class="back" id="ctxBack" href="#history" hidden>Back</a>
+      <h1 id="ctxTitle">New assessment</h1>
+      <p id="ctxSub" class="ctx-sub"></p>
+      <div class="examples" id="fillRow">Fill with
+        <button type="button" class="chip-btn" id="fillLast" hidden>last visit's values</button>
+        <button type="button" class="chip-btn" data-example="low">low-risk example</button>
+        <button type="button" class="chip-btn" data-example="high">high-risk example</button>
+      </div>
+    </div>
+
+    <fieldset>
+      <legend>Patient</legend>
+      <div class="row">
+        <div class="field">
+          <label for="age">Age</label>
+          <div class="input-wrap"><input type="number" id="age" name="age" min="18" max="100" step="1" inputmode="numeric" required><span class="unit">years</span></div>
+        </div>
+        <div class="field">
+          <span class="label" id="sex-l">Sex</span>
+          <div class="seg" role="radiogroup" aria-labelledby="sex-l">
+            <label><input type="radio" name="sex" value="1" required><span>Male</span></label>
+            <label><input type="radio" name="sex" value="0"><span>Female</span></label>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Symptoms</legend>
+      <div class="field">
+        <span class="label" id="cp-l">Chest pain type</span>
+        <div class="seg stack" role="radiogroup" aria-labelledby="cp-l">
+          <label><input type="radio" name="chest_pain_type" value="1" required><span>Typical angina</span></label>
+          <label><input type="radio" name="chest_pain_type" value="2"><span>Atypical angina</span></label>
+          <label><input type="radio" name="chest_pain_type" value="3"><span>Non-anginal pain</span></label>
+          <label><input type="radio" name="chest_pain_type" value="4"><span>No pain (asymptomatic)</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label" id="ea-l">Angina during exercise</span>
+        <div class="seg" role="radiogroup" aria-labelledby="ea-l">
+          <label><input type="radio" name="exercise_angina" value="0" required><span>No</span></label>
+          <label><input type="radio" name="exercise_angina" value="1"><span>Yes</span></label>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Vitals and labs</legend>
+      <div class="row">
+        <div class="field">
+          <label for="resting_bp_s">Resting blood pressure</label>
+          <div class="input-wrap"><input type="number" id="resting_bp_s" name="resting_bp_s" min="60" max="250" step="1" inputmode="numeric" required><span class="unit">mmHg</span></div>
+        </div>
+        <div class="field">
+          <label for="max_heart_rate">Maximum heart rate</label>
+          <div class="input-wrap"><input type="number" id="max_heart_rate" name="max_heart_rate" min="50" max="230" step="1" inputmode="numeric" required><span class="unit">bpm</span></div>
+        </div>
+      </div>
+      <div class="field">
+        <label for="cholesterol">Serum cholesterol</label>
+        <div class="input-wrap"><input type="number" id="cholesterol" name="cholesterol" min="80" max="700" step="1" inputmode="numeric" required><span class="unit">mg/dl</span></div>
+        <label class="check"><input type="checkbox" id="chol_missing"> Not measured (the model estimates it from the other values)</label>
+      </div>
+      <div class="field">
+        <span class="label" id="fbs-l">Fasting blood sugar above 120 mg/dl</span>
+        <div class="seg" role="radiogroup" aria-labelledby="fbs-l">
+          <label><input type="radio" name="fasting_blood_sugar" value="0" required><span>No</span></label>
+          <label><input type="radio" name="fasting_blood_sugar" value="1"><span>Yes</span></label>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>ECG</legend>
+      <div class="field">
+        <span class="label" id="ecg-l">Resting ECG</span>
+        <div class="seg stack" role="radiogroup" aria-labelledby="ecg-l">
+          <label><input type="radio" name="resting_ecg" value="0" required><span>Normal</span></label>
+          <label><input type="radio" name="resting_ecg" value="1"><span>ST-T abnormality</span></label>
+          <label><input type="radio" name="resting_ecg" value="2"><span>LV hypertrophy</span></label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <span class="label" id="slope-l">ST slope at peak exercise</span>
+          <div class="seg stack" role="radiogroup" aria-labelledby="slope-l">
+            <label><input type="radio" name="ST_slope" value="1" required><span>Up</span></label>
+            <label><input type="radio" name="ST_slope" value="2"><span>Flat</span></label>
+            <label><input type="radio" name="ST_slope" value="3"><span>Down</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="oldpeak">ST depression</label>
+          <div class="input-wrap"><input type="number" id="oldpeak" name="oldpeak" min="-3" max="7" step="0.1" inputmode="decimal" required><span class="unit">mm</span></div>
+          <small>Exercise relative to rest (oldpeak)</small>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Notes</legend>
+      <div class="field">
+        <label for="notes" class="sr-only" hidden>Notes</label>
+        <textarea id="notes" name="notes" maxlength="1000" placeholder="Optional, saved with this assessment"></textarea>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button type="submit" class="btn primary" id="submitBtn">Assess and save</button>
+      <button type="button" class="btn" id="clearBtn">Clear form</button>
+    </div>
+  </form>
+
+  <section class="readout" aria-live="polite" aria-busy="false" id="readout">
+    <div class="strip-panel">
+      <div class="strip-head">
+        <span class="strip-title">Probability of heart disease</span>
+        <span class="strip-meta" id="stripMeta">Referral band from the model's 90% prediction sets</span>
+      </div>
+      <svg id="strip" viewBox="0 0 1000 230" role="img" aria-labelledby="stripDesc">
+        <desc id="stripDesc">Risk strip. No result yet.</desc>
+        <g id="grid" aria-hidden="true"></g>
+        <g id="zones"></g>
+        <path id="trace" class="idle" d="M0 150 H1000"/>
+        <g id="marker">
+          <line id="markerLine" x1="0" x2="0" y1="34" y2="196" style="stroke: var(--ink)" stroke-width="1.5" stroke-dasharray="3 4"/>
+          <circle id="markerDot" cx="0" cy="34" r="6" style="fill: var(--ink)"/>
+        </g>
+        <g id="axis"></g>
+      </svg>
+    </div>
+
+    <div class="verdict empty" id="verdict">
+      <div>
+        <h2 id="verdictTitle">No assessment yet</h2>
+        <p id="verdictText">Enter the patient's values and select Assess risk. The probability, how certain the model is, and the inputs that drove the result will appear here.</p>
+      </div>
+      <dl class="facts" id="facts" hidden>
+        <div><dt>Probability</dt><dd class="big" id="fProb">–</dd></div>
+        <div><dt>Prediction</dt><dd id="fPred">–</dd></div>
+        <div><dt>Prediction set</dt><dd id="fSet">–</dd></div>
+      </dl>
+      <ul class="notices" id="notices" hidden></ul>
+      <p class="saved-note" id="savedNote" hidden></p>
+    </div>
+
+    <div class="explain" id="explain" hidden>
+      <h3>What drove this prediction</h3>
+      <p class="lede" id="explainLede"></p>
+      <div id="waterfallWrap"><svg id="waterfall" role="img" aria-label="SHAP contribution of each input"></svg></div>
+      <p class="summary" id="explainSummary"></p>
+      <p class="method" id="explainMethod"></p>
+    </div>
+  </section>
+</section>
+
+<section id="view-dyn" hidden></section>
+
+<section id="view-model" hidden>
+  <div class="page-head">
+    <div>
+      <h1 id="mTitle">Model</h1>
+      <p id="mSub"></p>
+    </div>
+  </div>
+  <div class="model-grid">
+    <div class="card">
+      <h2>Held-out test performance</h2>
+      <div class="metrics" id="mMetrics"></div>
+      <dl class="kv" id="mKv"></dl>
+    </div>
+    <div class="card">
+      <h2>Performance at a hospital it never saw</h2>
+      <p id="mExtText"></p>
+      <div class="site-bars" id="mSites"></div>
+    </div>
+    <div class="card" style="grid-column: 1 / -1">
+      <h2>How to read a result</h2>
+      <p><b>Probability</b> is the ensemble's estimate that the patient has heart disease. The <b>prediction</b> applies the decision threshold, which was chosen on training data and favours catching disease (high sensitivity).</p>
+      <p><b>Uncertainty</b> comes from conformal prediction. Inside the amber referral band the model's 90% prediction set contains both outcomes, so the case is marked for clinician review instead of a single label.</p>
+      <p><b>Explanations</b> are SHAP values: each input's contribution, in percentage points, that moves the probability from the average training patient to this patient. They describe the model's reasoning, not medical causation.</p>
+      <p>Research prototype for academic use. Not a medical device and not validated for diagnosis. Before use at a new hospital, recalibrate to that hospital's disease rate.</p>
+    </div>
+  </div>
+</section>
+</main>
+<footer class="site-foot"><span>Created by <b>Syed Basil Rizvi</b>, B.Tech Computer Engineering (AI), Aligarh Muslim University</span><span>Research prototype. Predictions support, and do not replace, clinical judgement.</span></footer>
+</div>
+
+<!-- ============================================================ DIALOGS -->
+<dialog id="pwDialog">
+  <form method="dialog" id="pwForm" novalidate>
+    <h2>Change password</h2>
+    <p>Use at least 8 characters.</p>
+    <p class="form-error" id="pwError" hidden></p>
+    <div class="field"><label for="pw_cur">Current password</label><input type="password" id="pw_cur" autocomplete="current-password"></div>
+    <div class="field"><label for="pw_new">New password</label><input type="password" id="pw_new" autocomplete="new-password"></div>
+    <div class="field"><label for="pw_new2">Repeat new password</label><input type="password" id="pw_new2" autocomplete="new-password"></div>
+    <div class="dlg-actions"><button class="btn small" value="cancel" formnovalidate>Cancel</button><button class="btn small solid" id="pwSave" value="ok">Change password</button></div>
+  </form>
+</dialog>
+
+<dialog id="editDialog" class="wide">
+  <form method="dialog" id="editForm" novalidate>
+    <h2 id="editTitle">Edit details</h2>
+    <p id="editText"></p>
+    <p class="form-error" id="editError" hidden></p>
+    <div class="field"><label for="ed_name">Full name</label><input type="text" id="ed_name" maxlength="80" autocomplete="name"></div>
+
+    <div data-role-fields="patient" hidden>
+      <div class="row">
+        <div class="field"><label for="ed_dob">Date of birth</label><input type="date" id="ed_dob"></div>
+        <div class="field">
+          <span class="label" id="ed_sex_l">Sex</span>
+          <div class="seg" role="radiogroup" aria-labelledby="ed_sex_l">
+            <label><input type="radio" name="ed_sex" value="1"><span>Male</span></label>
+            <label><input type="radio" name="ed_sex" value="0"><span>Female</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div data-role-fields="doctor" hidden>
+      <div class="row">
+        <div class="field"><label for="ed_spec">Specialty</label><input type="text" id="ed_spec" maxlength="80"></div>
+        <div class="field"><label for="ed_hosp">Hospital</label><input type="text" id="ed_hosp" maxlength="120"></div>
+      </div>
+      <div class="field"><label for="ed_reg">Registration number <small>(optional)</small></label><input type="text" id="ed_reg" maxlength="40"></div>
+      <div class="field"><label for="ed_bio">About <small>(optional, shown to patients)</small></label><textarea id="ed_bio" rows="3" maxlength="600"></textarea></div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label for="ed_email">Email <small>(optional)</small></label><input type="email" id="ed_email" maxlength="120" autocomplete="email"></div>
+      <div class="field"><label for="ed_phone">Phone <small>(optional)</small></label><input type="tel" id="ed_phone" maxlength="30" autocomplete="tel"></div>
+    </div>
+    <div class="dlg-actions"><button class="btn small" value="cancel" formnovalidate>Cancel</button><button class="btn small solid" id="editSave" value="ok">Save changes</button></div>
+  </form>
+</dialog>
+
+<dialog id="askDialog">
+  <form method="dialog" id="askForm" novalidate>
+    <h2 id="askTitle"></h2>
+    <p id="askText"></p>
+    <p class="form-error" id="askError" hidden></p>
+    <div class="field" id="askField" hidden><label for="askInput" id="askLabel"></label><input type="password" id="askInput" autocomplete="new-password"></div>
+    <div class="dlg-actions"><button class="btn small" value="cancel" formnovalidate>Cancel</button><button class="btn small solid" id="askOk" value="ok">OK</button></div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+<script src="/static/app.js"></script>
+<script src="/static/theme.js"></script>
+</body>
+</html>
