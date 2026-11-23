@@ -3,33 +3,87 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SmartHeart – heart disease risk assessment</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M2 18h7l3-7 4 14 3-9 2 2h9' fill='none' stroke='%23B4233A' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Smart Healthcare System for Heart Patients</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B5FA5'/%3E%3Cpath d='M16 26s-9-5.3-11.3-10.7C3.1 11.4 5.3 6.5 9.8 6.5c2.7 0 4.6 1.6 6.2 3.7 1.6-2.1 3.5-3.7 6.2-3.7 4.5 0 6.7 4.9 5.1 8.8C25 20.7 16 26 16 26z' fill='%23fff'/%3E%3Cpath d='M6.5 15.6h4.6l1.8-3.7 2.7 7.5 2-5 1.4 1.2h6' fill='none' stroke='%23D62839' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/theme.css">
 </head>
 <body>
 
 <!-- ============================================================ SIGN IN / REGISTER -->
 <div class="auth" id="authScreen" hidden>
-  <div class="auth-side">
-    <span class="brand"><svg viewBox="0 0 32 32" aria-hidden="true" width="30" height="30"><path d="M2 18h7l3-7 4 14 3-9 2 2h9" fill="none" style="stroke: var(--risk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>SmartHeart</span>
-    <div class="auth-pitch">
-      <h2>Heart disease risk, tracked visit by visit.</h2>
-      <p>Each assessment is saved with its date, so you and your doctors can see how the risk changes over time and why.</p>
+  <section class="hero" aria-label="About the Smart Healthcare System">
+    <div class="hero-top">
+      <span class="uni">
+        <span class="uni-logo"><img src="/static/img/amu-logo.png" alt="Aligarh Muslim University logo" onerror="this.parentElement.classList.add('no-logo');this.remove()"><span class="uni-fallback" aria-hidden="true">AMU</span></span>
+        <span class="uni-text"><b>Aligarh Muslim University</b><small>B.Tech Computer Engineering (AI), final-year project</small></span>
+      </span>
     </div>
-    <svg class="auth-trace" viewBox="0 0 600 140" preserveAspectRatio="none" aria-hidden="true">
-      <path d="M0 100 H60 q8 -10 16 0 h10 l5 8 l7 -50 l7 66 l5 -24 h14 q12 -16 24 0 H200 q8 -10 16 0 h10 l5 8 l7 -50 l7 66 l5 -24 h14 q12 -16 24 0 H340 q8 -10 16 0 h10 l5 8 l7 -90 l7 106 l5 -24 h14 q12 -16 24 0 H600"/>
-      <circle cx="378" cy="18" r="6"/>
-    </svg>
-  </div>
+    <div class="hero-body">
+      <h1 class="hero-title">Smart Healthcare System for Heart Patients</h1>
+      <p class="hero-lede">Assess heart disease risk from routine clinical values, see what drives each result, and keep a dated record that your doctors can follow.</p>
+      <ul class="hero-points">
+        <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg></span><span><b>Risk assessment</b> from 11 values a clinic already records, such as blood pressure, cholesterol and the ECG.</span></li>
+        <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span><b>Explained results.</b> Every prediction shows which values raised or lowered the risk.</span></li>
+        <li><span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.7.8 2.7 2.5 3 5.2"/></svg></span><span><b>Shared history.</b> Each visit is saved with its date, and the doctors you choose can see it.</span></li>
+      </ul>
+    </div>
+    <figure class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 560 470" role="presentation">
+        <defs>
+          <linearGradient id="hg" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#FF7A88"/><stop offset=".55" stop-color="#E23B4E"/><stop offset="1" stop-color="#B01E33"/></linearGradient>
+          <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff" stop-opacity=".16"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+          <linearGradient id="tube" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F4F8FC"/><stop offset="1" stop-color="#BFD3E6"/></linearGradient>
+        </defs>
+        <circle cx="330" cy="280" r="190" fill="url(#glow)"/>
+        <circle cx="330" cy="280" r="150" fill="none" stroke="#ffffff" stroke-opacity=".10" stroke-width="1.5"/>
+        <circle cx="330" cy="280" r="205" fill="none" stroke="#ffffff" stroke-opacity=".06" stroke-width="1.5" stroke-dasharray="4 8"/>
+        <!-- heart -->
+        <g class="heart">
+          <path d="M330 420C262 378 210 334 200 278c-9-50 22-96 72-96 27 0 45 14 58 34 13-20 31-34 58-34 50 0 81 46 72 96-10 56-62 100-130 142z" fill="url(#hg)"/>
+          <path d="M246 214c-22 8-34 30-30 56" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="9" stroke-linecap="round"/>
+          <path d="M214 296h46l14-30 20 62 16-44 10 12h76" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <!-- stethoscope -->
+        <g fill="none" stroke-linecap="round">
+          <path d="M474 64c-4 40 6 70 30 92M520 58c4 40-4 70-16 98" stroke="url(#tube)" stroke-width="7"/>
+          <circle cx="474" cy="60" r="7" fill="#F4F8FC"/><circle cx="520" cy="54" r="7" fill="#F4F8FC"/>
+          <path d="M504 156c10 60-4 126-52 178-38 41-92 66-146 70-52 4-96-10-118-40" stroke="url(#tube)" stroke-width="10"/>
+          <circle cx="182" cy="356" r="30" fill="#F4F8FC" stroke="#BFD3E6" stroke-width="6"/>
+          <circle cx="182" cy="356" r="13" fill="#D7E5F1"/>
+        </g>
+        <!-- bedside monitor -->
+        <g transform="translate(18 18)">
+          <rect width="300" height="168" rx="18" fill="#061F36" stroke="#ffffff" stroke-opacity=".16"/>
+          <rect x="14" y="40" width="272" height="112" rx="8" fill="#04172A"/>
+          <g stroke="#2B5A7F" stroke-opacity=".35" stroke-width="1">
+            <path d="M14 68h272M14 96h272M14 124h272M68 40v112M122 40v112M176 40v112M230 40v112"/>
+          </g>
+          <text x="16" y="27" font-family="Public Sans, system-ui, sans-serif" font-size="13" font-weight="700" fill="#9FD0FF">ECG  II</text>
+          <text class="bpm" x="284" y="28" text-anchor="end" font-family="Public Sans, system-ui, sans-serif" font-size="18" font-weight="800" fill="#5BE3B0">72 bpm</text>
+          <path class="ecg-base" d="M14 104h30l8-10 8 10h10l6 8 9-58 9 76 6-26h18l12-12 12 12h22l8-10 8 10h10l6 8 9-58 9 76 6-26h18l12-12 12 12h17" fill="none" stroke-width="2.6" stroke-linejoin="round"/>
+          <path class="ecg-pulse" d="M14 104h30l8-10 8 10h10l6 8 9-58 9 76 6-26h18l12-12 12 12h22l8-10 8 10h10l6 8 9-58 9 76 6-26h18l12-12 12 12h17" fill="none" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" pathLength="800"/>
+        </g>
+        <!-- small crosses -->
+        <g fill="#ffffff" fill-opacity=".35">
+          <path d="M520 300h6v8h8v6h-8v8h-6v-8h-8v-6h8z"/>
+          <path d="M108 250h4v6h6v4h-6v6h-4v-6h-6v-4h6z"/>
+          <path d="M470 420h5v7h7v5h-7v7h-5v-7h-7v-5h7z"/>
+        </g>
+      </svg>
+    </figure>
+    <p class="hero-credit">Created by <b>Syed Basil Rizvi</b></p>
+  </section>
+
   <div class="auth-main">
     <div class="auth-card">
+      <div class="auth-brand"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 27.5s-10-5.9-12.6-11.9C1.6 11.3 4 5.8 9 5.8c3 0 5.2 1.8 7 4.2 1.8-2.4 4-4.2 7-4.2 5 0 7.4 5.5 5.6 9.8C26 21.6 16 27.5 16 27.5z" fill="#fff"/><path d="M5.5 16.2h5.2l2-4.2 3 8.4 2.2-5.6 1.6 1.4h6.7" fill="none" stroke="#0B5FA5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="brand-text"><b>Smart Healthcare System</b><small>for Heart Patients</small></span></div>
       <form id="loginForm" novalidate>
         <h1>Sign in</h1>
-        <p class="lede">Patients, doctors and administrators sign in here.</p>
+        <p class="lede">Patients, doctors and administrators sign in with their username.</p>
         <p class="form-error" id="loginError" hidden></p>
         <div class="field"><label for="li_user">Username</label><input type="text" id="li_user" autocomplete="username" required></div>
         <div class="field"><label for="li_pass">Password</label><input type="password" id="li_pass" autocomplete="current-password" required></div>
@@ -69,16 +123,18 @@
         <button class="btn primary" type="submit" id="registerBtn">Create account</button>
         <p class="auth-switch">Already registered? <button type="button" data-auth="login">Sign in</button></p>
       </form>
+      <p class="auth-foot mobile-only">Created by <b>Syed Basil Rizvi</b>, Aligarh Muslim University</p>
     </div>
+    <p class="auth-note">Research prototype for academic use. Results support, and do not replace, a doctor's judgement.</p>
   </div>
 </div>
 
 <!-- ============================================================ APP -->
 <div id="appShell" hidden>
 <header class="bar">
-  <a class="brand" href="#" id="homeLink" aria-label="SmartHeart home">
-    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M2 18h7l3-7 4 14 3-9 2 2h9" fill="none" style="stroke: var(--risk)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <span>SmartHeart</span>
+  <a class="brand" href="#" id="homeLink" aria-label="Smart Healthcare System home">
+    <span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 27.5s-10-5.9-12.6-11.9C1.6 11.3 4 5.8 9 5.8c3 0 5.2 1.8 7 4.2 1.8-2.4 4-4.2 7-4.2 5 0 7.4 5.5 5.6 9.8C26 21.6 16 27.5 16 27.5z" fill="#fff"/><path d="M5.5 16.2h5.2l2-4.2 3 8.4 2.2-5.6 1.6 1.4h6.7" fill="none" stroke="#0B5FA5" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <span class="brand-text"><b>Smart Healthcare System</b><small>for Heart Patients</small></span>
   </a>
   <nav class="tabs" id="nav" aria-label="Sections"></nav>
   <div class="who">
@@ -280,7 +336,7 @@
   </div>
 </section>
 </main>
-<footer>SmartHeart is a research prototype. Predictions support, and do not replace, clinical judgement.</footer>
+<footer class="site-foot"><span>Created by <b>Syed Basil Rizvi</b>, B.Tech Computer Engineering (AI), Aligarh Muslim University</span><span>Research prototype. Predictions support, and do not replace, clinical judgement.</span></footer>
 </div>
 
 <!-- ============================================================ DIALOGS -->
@@ -345,5 +401,6 @@
 
 <div class="toast" id="toast" role="status"></div>
 <script src="/static/app.js"></script>
+<script src="/static/theme.js"></script>
 </body>
 </html>
