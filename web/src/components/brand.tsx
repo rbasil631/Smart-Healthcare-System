@@ -1,4 +1,7 @@
+import * as React from "react"
 import { cn } from "cn"
+
+import { AMU_LOGO } from "@/lib/media"
 
 /** The heart-with-ECG mark used in the header and on the sign-in card. */
 export function BrandMark({ className }: { className?: string }) {
@@ -9,7 +12,7 @@ export function BrandMark({ className }: { className?: string }) {
         className
       )}
     >
-      <svg viewBox="0 0 32 32" aria-hidden="true" className="size-6">
+      <svg viewBox="0 0 32 32" aria-hidden="true" className="heartbeat size-6">
         <path
           d="M16 27.5s-10-5.9-12.6-11.9C1.6 11.3 4 5.8 9 5.8c3 0 5.2 1.8 7 4.2 1.8-2.4 4-4.2 7-4.2 5 0 7.4 5.5 5.6 9.8C26 21.6 16 27.5 16 27.5z"
           fill="#fff"
@@ -198,5 +201,130 @@ export function HeroArt({ className }: { className?: string }) {
 
       <style>{`@keyframes hero-sweep { from { stroke-dashoffset: 800 } to { stroke-dashoffset: 0 } }`}</style>
     </svg>
+  )
+}
+
+/** The Aligarh Muslim University seal, on a white disc so it reads on any background. */
+export function AmuLogo({ className }: { className?: string }) {
+  const [failed, setFailed] = React.useState(false)
+  return (
+    <span
+      className={cn(
+        "relative inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-white shadow-[0_8px_24px_-10px_rgba(0,0,0,.45)] ring-1 ring-black/5",
+        className
+      )}
+    >
+      {failed ? (
+        <b className="text-xs font-extrabold text-[#0f7a2a]">AMU</b>
+      ) : (
+        <img
+          src={AMU_LOGO}
+          alt="Aligarh Muslim University logo"
+          className="size-[88%] object-contain"
+          onError={() => setFailed(true)}
+        />
+      )}
+    </span>
+  )
+}
+
+const ECG_SEGMENT = "h60l10-12 10 12h16l8 10 12-74 12 96 8-32h24l16-16 16 16h40"
+
+/**
+ * A continuous ECG trace that runs across its container. The path repeats a
+ * beat so the scrolling loop is seamless.
+ */
+export function EcgLine({
+  className,
+  color = "currentColor",
+  beats = 6,
+  glow = true,
+}: {
+  className?: string
+  color?: string
+  beats?: number
+  glow?: boolean
+}) {
+  const beat = 248
+  const width = beat * beats
+  const d = `M0 60${ECG_SEGMENT.repeat(beats * 2)}`
+  return (
+    <div className={cn("pointer-events-none overflow-hidden", className)}>
+      <svg
+        viewBox={`0 0 ${width} 120`}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+        className="ecg-run h-full"
+        style={{ width: "200%" }}
+      >
+        {glow ? (
+          <path
+            d={d}
+            fill="none"
+            stroke={color}
+            strokeOpacity=".25"
+            strokeWidth="9"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        ) : null}
+        <path
+          d={d}
+          fill="none"
+          stroke={color}
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+    </div>
+  )
+}
+
+/** Medical crosses and small hearts drifting upward, for photo backgrounds. */
+export function FloatingMarks({ className }: { className?: string }) {
+  const marks = [
+    { left: "6%", size: 18, delay: "0s", dur: "16s", heart: false },
+    { left: "18%", size: 12, delay: "4s", dur: "19s", heart: true },
+    { left: "31%", size: 22, delay: "8s", dur: "22s", heart: false },
+    { left: "47%", size: 14, delay: "2s", dur: "18s", heart: true },
+    { left: "62%", size: 16, delay: "10s", dur: "21s", heart: false },
+    { left: "74%", size: 12, delay: "6s", dur: "17s", heart: true },
+    { left: "88%", size: 20, delay: "12s", dur: "24s", heart: false },
+  ]
+  return (
+    <div
+      aria-hidden="true"
+      className={cn(
+        "pointer-events-none absolute inset-0 overflow-hidden",
+        className
+      )}
+    >
+      {marks.map((m, i) => (
+        <svg
+          key={i}
+          viewBox="0 0 24 24"
+          className="float-up absolute -bottom-8 text-white/30"
+          style={{
+            left: m.left,
+            width: m.size,
+            height: m.size,
+            animationDelay: m.delay,
+            animationDuration: m.dur,
+          }}
+        >
+          {m.heart ? (
+            <path
+              d="M12 21s-8-4.8-10-9.6C.6 8 2.5 3.6 6.5 3.6c2.4 0 4 1.4 5.5 3.3 1.5-1.9 3.1-3.3 5.5-3.3 4 0 5.9 4.4 4.5 7.8C20 16.2 12 21 12 21z"
+              fill="currentColor"
+            />
+          ) : (
+            <path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z" fill="currentColor" />
+          )}
+        </svg>
+      ))}
+    </div>
   )
 }

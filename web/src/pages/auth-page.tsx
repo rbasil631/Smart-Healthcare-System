@@ -1,7 +1,18 @@
 import * as React from "react"
-import { ActivityIcon, BarChart3Icon, UsersIcon } from "lucide-react"
+import {
+  ActivityIcon,
+  BarChart3Icon,
+  HeartPulseIcon,
+  ShieldCheckIcon,
+  UsersIcon,
+} from "lucide-react"
 
-import { BrandLockup, HeroArt } from "@/components/brand"
+import {
+  AmuLogo,
+  BrandLockup,
+  EcgLine,
+  FloatingMarks,
+} from "@/components/brand"
 import { ChoiceGroup } from "@/components/choice-group"
 import { Alert, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
@@ -17,6 +28,7 @@ import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { api } from "@/lib/api"
 import { CHOICES, HOME, USERNAME_RE } from "@/lib/constants"
+import { SLIDES } from "@/lib/media"
 import { notify } from "@/lib/notify"
 import { useSession } from "@/lib/session"
 import type { PublicDoctor, User } from "@/lib/types"
@@ -25,37 +37,56 @@ const POINTS = [
   {
     icon: ActivityIcon,
     title: "Risk assessment",
-    body: "from 11 values a clinic already records, such as blood pressure, cholesterol and the ECG.",
+    body: "from 11 values a clinic already records: blood pressure, cholesterol, ECG.",
   },
   {
     icon: BarChart3Icon,
-    title: "Explained results.",
-    body: "Every prediction shows which values raised or lowered the risk.",
+    title: "Explained results",
+    body: "Each prediction shows which values raised or lowered the risk.",
   },
   {
     icon: UsersIcon,
-    title: "Shared history.",
-    body: "Each visit is saved with its date, and the doctors you choose can see it.",
+    title: "Shared history",
+    body: "Every visit is saved with its date for the doctors you choose.",
   },
 ]
 
-function UniLogo() {
-  const [failed, setFailed] = React.useState(false)
-  if (failed) {
-    return (
-      <span className="flex size-11 items-center justify-center rounded-xl bg-white/15 text-sm font-extrabold">
-        AMU
-      </span>
-    )
-  }
+const STATS = [
+  { value: "918", label: "patients in the study" },
+  { value: "4", label: "hospitals" },
+  { value: "0.93", label: "AUC on held-out data" },
+]
+
+/** Full-bleed photographs that cross-fade with a slow zoom. */
+function Slideshow({ index }: { index: number }) {
   return (
-    <img
-      src="/static/img/amu-logo.png"
-      alt="Aligarh Muslim University logo"
-      className="size-11 rounded-xl bg-white/90 object-contain p-1"
-      onError={() => setFailed(true)}
-    />
+    <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
+      {SLIDES.map((slide, i) => (
+        <div
+          key={slide.src}
+          className="absolute inset-0 transition-opacity duration-[1600ms] ease-in-out"
+          style={{ opacity: i === index ? 1 : 0 }}
+        >
+          <img
+            src={slide.src}
+            alt=""
+            className="ken-burns size-full object-cover"
+            onError={(e) => (e.currentTarget.style.display = "none")}
+          />
+        </div>
+      ))}
+    </div>
   )
+}
+
+function useSlideIndex(count: number, ms = 6500) {
+  const [index, setIndex] = React.useState(0)
+  React.useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+    const id = window.setInterval(() => setIndex((i) => (i + 1) % count), ms)
+    return () => window.clearInterval(id)
+  }, [count, ms])
+  return [index, setIndex] as const
 }
 
 export function AuthPage({
@@ -64,78 +95,146 @@ export function AuthPage({
   initial?: "login" | "register"
 }) {
   const [mode, setMode] = React.useState<"login" | "register">(initial)
+  const [slide, setSlide] = useSlideIndex(SLIDES.length)
 
   return (
-    <div className="grid min-h-svh lg:grid-cols-[1.05fr_1fr]">
-      <section
-        aria-label="About the Smart Healthcare System"
-        className="relative hidden flex-col justify-between overflow-hidden bg-linear-160 from-primary to-brand-deep p-10 text-white lg:flex"
-      >
-        {/* Optional drop-ins, see public/img/README.md: both fall back cleanly. */}
-        <img
-          src="/static/img/hero.jpg"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 size-full object-cover opacity-25 mix-blend-luminosity"
-          onError={(e) => e.currentTarget.remove()}
+    <div className="relative isolate flex min-h-svh flex-col overflow-hidden bg-brand-deep text-white">
+      {/* Background: gradient first, then photos, then a tint so text stays readable. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-20 bg-linear-150 from-primary via-brand-deep to-[#06121f]"
+      />
+      <div className="absolute inset-0 -z-10">
+        <Slideshow index={slide} />
+        <div className="absolute inset-0 bg-linear-to-r from-[#061a2e]/95 via-[#0a2e4f]/80 to-[#0a2e4f]/45" />
+        <div className="absolute inset-0 bg-linear-to-t from-[#04101c]/90 via-transparent to-[#04101c]/40" />
+        <FloatingMarks />
+        <EcgLine
+          className="absolute inset-x-0 bottom-14 h-20 text-[#ff5d73] opacity-60"
+          beats={5}
         />
+      </div>
 
-        <div className="relative z-10 flex items-center gap-3">
-          <UniLogo />
+      {/* Top bar: university identity */}
+      <header className="relative z-10 mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-5 pt-6 fade-in sm:px-8">
+        <div className="flex items-center gap-3">
+          <AmuLogo className="size-14 sm:size-16" />
           <span className="flex flex-col leading-tight">
-            <b>Aligarh Muslim University</b>
-            <small className="text-white/75">
-              B.Tech Computer Engineering (AI), final-year project
+            <b className="text-base sm:text-lg">Aligarh Muslim University</b>
+            <small className="text-xs text-white/75 sm:text-sm">
+              Interdisciplinary Centre for Artificial Intelligence
             </small>
           </span>
         </div>
+        <span className="hidden items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold backdrop-blur-md sm:inline-flex">
+          <HeartPulseIcon className="heartbeat size-4 text-[#ff8a98]" />
+          B.Tech (AI) Major Project
+        </span>
+      </header>
 
-        <div className="relative z-10 max-w-xl">
-          <h1 className="text-4xl font-extrabold tracking-tight">
-            Smart Healthcare System for Heart Patients
+      <main className="relative z-10 mx-auto grid w-full max-w-7xl flex-1 items-center gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[1.1fr_minmax(0,460px)] lg:gap-16">
+        {/* Story */}
+        <section
+          aria-label="About the Smart Healthcare System"
+          className="stagger"
+        >
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-[#ff5d73]/15 px-3 py-1 text-xs font-bold tracking-wider text-[#ffb3bd] uppercase ring-1 ring-[#ff5d73]/30">
+            <HeartPulseIcon className="heartbeat size-4" />
+            Cardiology · Explainable AI
+          </div>
+          <h1 className="text-4xl leading-[1.08] font-extrabold tracking-tight text-balance sm:text-5xl xl:text-6xl">
+            Smart Healthcare System{" "}
+            <span className="bg-linear-to-r from-[#ff8a98] via-[#ff5d73] to-[#ffc2a8] bg-clip-text text-transparent">
+              for Heart Patients
+            </span>
           </h1>
-          <p className="mt-3 text-lg text-white/80">
+          <p className="mt-4 max-w-xl text-base text-white/80 sm:text-lg">
             Assess heart disease risk from routine clinical values, see what
-            drives each result, and keep a dated record that your doctors can
-            follow.
+            drives each result, and keep a dated record your doctors can follow.
           </p>
-          <ul className="mt-7 flex flex-col gap-4">
+
+          <ul className="mt-7 hidden max-w-2xl gap-3 sm:grid sm:grid-cols-3">
             {POINTS.map(({ icon: Icon, title, body }) => (
-              <li key={title} className="flex gap-3">
-                <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
+              <li
+                key={title}
+                className="lift rounded-2xl border border-white/15 bg-white/[0.07] p-4 backdrop-blur-md hover:border-white/30"
+              >
+                <span className="mb-2 flex size-9 items-center justify-center rounded-xl bg-linear-135 from-[#ff5d73] to-[#c0263b] shadow-lg shadow-[#c0263b]/30">
                   <Icon className="size-4.5" />
                 </span>
-                <span className="text-white/85">
-                  <b className="text-white">{title}</b> {body}
-                </span>
+                <b className="block text-sm">{title}</b>
+                <span className="text-sm text-white/70">{body}</span>
               </li>
             ))}
           </ul>
-        </div>
 
-        <HeroArt className="pointer-events-none absolute right-0 -bottom-6 z-0 h-[40%] max-h-88 opacity-85" />
+          <dl className="mt-7 hidden flex-wrap gap-x-10 gap-y-4 sm:flex">
+            {STATS.map((s) => (
+              <div key={s.label}>
+                <dt className="sr-only">{s.label}</dt>
+                <dd className="text-3xl font-extrabold tracking-tight">
+                  {s.value}
+                </dd>
+                <dd className="text-xs font-semibold tracking-wide text-white/60 uppercase">
+                  {s.label}
+                </dd>
+              </div>
+            ))}
+          </dl>
 
-        <p className="relative z-10 text-sm text-white/70">
-          Created by <b className="text-white">Syed Basil Rizvi</b>
-        </p>
-      </section>
-
-      <section className="flex flex-col items-center justify-center gap-6 p-6 sm:p-10">
-        <div className="w-full max-w-md">
-          <div className="mb-6">
-            <BrandLockup />
+          <div className="mt-8 hidden items-center gap-3 lg:flex">
+            {SLIDES.map((s, i) => (
+              <button
+                key={s.src}
+                type="button"
+                aria-label={`Show photo ${i + 1}: ${s.caption}`}
+                onClick={() => setSlide(i)}
+                className="h-1.5 rounded-full bg-white/30 transition-all duration-500 hover:bg-white/60 data-[on=true]:w-10 data-[on=true]:bg-white"
+                style={{ width: i === slide ? undefined : 18 }}
+                data-on={i === slide}
+              />
+            ))}
+            <span key={slide} className="ml-2 text-sm text-white/70 fade-in">
+              {SLIDES[slide].caption}
+            </span>
           </div>
-          {mode === "login" ? (
-            <SignInForm onSwitch={() => setMode("register")} />
-          ) : (
-            <RegisterForm onSwitch={() => setMode("login")} />
-          )}
+        </section>
+
+        {/* Form card */}
+        <section className="fade-up [animation-delay:.15s]">
+          <div className="relative rounded-3xl bg-card p-6 text-card-foreground shadow-[0_30px_80px_-20px_rgba(0,0,0,.6)] ring-1 ring-white/20 sm:p-8">
+            <div className="absolute inset-x-8 -top-px h-px bg-linear-to-r from-transparent via-[#ff5d73] to-transparent" />
+            <div className="mb-6 flex items-center justify-between gap-3">
+              <BrandLockup />
+              <AmuLogo className="size-10 shadow-none ring-border" />
+            </div>
+            <div key={mode} className="fade-up">
+              {mode === "login" ? (
+                <SignInForm onSwitch={() => setMode("register")} />
+              ) : (
+                <RegisterForm onSwitch={() => setMode("login")} />
+              )}
+            </div>
+            <p className="mt-6 flex items-start gap-2 border-t pt-4 text-xs text-muted-foreground">
+              <ShieldCheckIcon className="mt-px size-4 shrink-0 text-safe" />
+              Research prototype for academic use. Results support, and do not
+              replace, a doctor&apos;s judgement.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <footer className="relative z-10 border-t border-white/10 bg-[#04101c]/60 backdrop-blur-md">
+        <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-5 py-4 text-sm sm:px-8">
+          <span className="text-white/75">
+            Created by <b className="text-white">Syed Basil Rizvi</b>,
+            Interdisciplinary Centre for Artificial Intelligence
+          </span>
+          <span className="text-white/50">
+            Aligarh Muslim University · © {new Date().getFullYear()}
+          </span>
         </div>
-        <p className="max-w-md text-center text-sm text-muted-foreground">
-          Research prototype for academic use. Results support, and do not
-          replace, a doctor&apos;s judgement.
-        </p>
-      </section>
+      </footer>
     </div>
   )
 }
@@ -204,7 +303,7 @@ function SignInForm({ onSwitch }: { onSwitch: () => void }) {
         </Field>
       </FieldGroup>
 
-      <Button type="submit" size="lg" disabled={busy}>
+      <Button type="submit" size="lg" disabled={busy} className="shine">
         {busy ? <Spinner data-icon="inline-start" /> : null}
         Sign in
       </Button>
@@ -288,7 +387,7 @@ function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
         phone: form.phone.trim() || null,
         doctor_ids: chosen,
       })
-      notify("Account created. Welcome to SmartHeart.")
+      notify("Account created. Welcome to the Smart Healthcare System.")
       enter(user, setUser)
     } catch (ex) {
       setError((ex as Error).message)
@@ -462,7 +561,7 @@ function RegisterForm({ onSwitch }: { onSwitch: () => void }) {
         </Field>
       </FieldGroup>
 
-      <Button type="submit" size="lg" disabled={busy}>
+      <Button type="submit" size="lg" disabled={busy} className="shine">
         {busy ? <Spinner data-icon="inline-start" /> : null}
         Create account
       </Button>

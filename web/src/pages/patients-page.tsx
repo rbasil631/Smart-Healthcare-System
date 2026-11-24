@@ -50,7 +50,7 @@ export function PatientsPage() {
   )
 
   return (
-    <div className="view-enter flex flex-col gap-6">
+    <div className="view-enter stagger flex flex-col gap-6">
       <PageHead
         title={admin ? "Patients" : "My patients"}
         description={

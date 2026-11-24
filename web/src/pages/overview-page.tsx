@@ -53,7 +53,7 @@ export function OverviewPage() {
   }
 
   return (
-    <div className="view-enter flex flex-col gap-6">
+    <div className="view-enter stagger flex flex-col gap-6">
       <PageHead
         title="Overview"
         description="Everything in the SmartHeart database."
@@ -72,7 +72,7 @@ export function OverviewPage() {
         {TILES.map((tile) => (
           <Card
             key={tile.key}
-            className="relative transition-colors hover:border-primary/50"
+            className="lift relative transition-colors hover:border-primary/50"
           >
             <CardHeader>
               <CardDescription>{tile.label}</CardDescription>

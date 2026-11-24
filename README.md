@@ -152,8 +152,8 @@ npm run lint    # eslint
 Run `python app/server.py` in a second terminal while using `npm run dev`. Components are added with
 `npx shadcn@latest add <component>`; the healthcare palette (clinical navy, heart red for risk, amber for
 the referral band) is defined once as CSS variables in `web/src/index.css` and used through semantic
-classes such as `bg-risk-tint` or `text-safe`. Optional `amu-logo.png` and `hero.jpg` drop-ins for the
-sign-in page go in `web/public/img/` (see the README there). The previous hand-written interface is kept
+classes such as `bg-risk-tint` or `text-safe`. The AMU logo is `web/public/img/amu-logo.png`; the sign-in slideshow and page-header
+photographs (Unsplash) are listed in `web/src/lib/media.ts` (see `web/public/img/README.md`). The previous hand-written interface is kept
 unchanged in `legacy/web-v1/` for reference.
 
 ## Key findings so far (from `legacy/smartheart_v2.py`)

@@ -54,7 +54,7 @@ export function ModelPage() {
   ]
 
   return (
-    <div className="view-enter flex flex-col gap-6">
+    <div className="view-enter stagger flex flex-col gap-6">
       <PageHead
         title={model.model_name ?? "Model"}
         description={`Trained on ${model.trained_on ?? "the training split"}. Missing cholesterol handled by ${
