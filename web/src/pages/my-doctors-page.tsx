@@ -81,7 +81,7 @@ export function MyDoctorsPage() {
   }
 
   return (
-    <div className="view-enter flex flex-col gap-6">
+    <div className="view-enter stagger flex flex-col gap-6">
       <PageHead
         title="My doctors"
         description="Doctors you add can see all your assessments and record new ones for you. You can remove them at any time."

@@ -42,7 +42,7 @@ export function AssessmentsPage() {
   )
 
   return (
-    <div className="view-enter flex flex-col gap-6">
+    <div className="view-enter stagger flex flex-col gap-6">
       <PageHead
         title="All assessments"
         description={`${plural(data.length, "assessment")}, newest first.`}

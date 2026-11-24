@@ -101,7 +101,7 @@ export function PatientPage({ pid }: { pid: number }) {
   }
 
   return (
-    <div className="view-enter flex flex-col gap-6">
+    <div className="view-enter stagger flex flex-col gap-6">
       <PageHead
         title={self ? "My history" : patient.full_name}
         description={`${patient.full_name}, ${patient.age} years, ${sexWord(patient.sex)}. ${

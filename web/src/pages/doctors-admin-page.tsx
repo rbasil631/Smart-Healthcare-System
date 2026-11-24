@@ -88,7 +88,7 @@ export function DoctorsAdminPage() {
   }
 
   return (
-    <div className="view-enter flex flex-col gap-6">
+    <div className="view-enter stagger flex flex-col gap-6">
       <PageHead
         title="Doctors"
         description={`${plural(
